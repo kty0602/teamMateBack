@@ -15,7 +15,7 @@ public interface BoardService {
     PageResultDTO<BoardDTO, Object[]> getList(PageRequestDTO pageRequestDTO);
 
     // 게시글 조회 처리
-    BoardDTO get(Long bno);
+    BoardDTO get(Long idx);
 
     // 게시글 삭제 처리
     void remove(BoardDTO dto);
