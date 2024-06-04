@@ -20,6 +20,7 @@ public class Team extends BaseEntity {
     private String ttitle;
     private String tcontent;
     private String tskill;
+
     // 모집중, 모집완료를 표시하기 위함
     private Integer state;
     private boolean tdelete;
@@ -35,4 +36,5 @@ public class Team extends BaseEntity {
     public void changeDelete(boolean tdelete) {
         this.tdelete = tdelete;
     }
+    public void changeSkill(String tskill) {this.tskill = tskill; }
 }

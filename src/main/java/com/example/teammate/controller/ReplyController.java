@@ -50,7 +50,7 @@ public class ReplyController {
 
         replyService.modify(replyDTO);
 
-        redirectAttributes.addAttribute("rno", replyDTO.getIdx());
+        redirectAttributes.addAttribute("idx", replyDTO.getIdx());
         return ResponseEntity.ok(replyDTO.getIdx());
     }
 

@@ -29,7 +29,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/login/**", "/register/**",
-                                "/skill/**", "/board/**", "/reply/**").permitAll()
+                                "/skill/**", "/board/**", "/reply/**", "/team/**", "/teamReply/**").permitAll()
                         .anyRequest().authenticated());
 
         return http.build();
