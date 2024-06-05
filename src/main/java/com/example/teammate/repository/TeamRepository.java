@@ -1,8 +1,7 @@
 package com.example.teammate.repository;
 
 import com.example.teammate.entity.Team;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.example.teammate.repository.search.SearchTeamRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +10,8 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
 
-public interface TeamRepository extends JpaRepository<Team, Long>, QuerydslPredicateExecutor<Team> {
+// QuerydslPredicateExecutor<Team>
+public interface TeamRepository extends JpaRepository<Team, Long>, SearchTeamRepository {
     // 특정 게시글에 대한 정보와 해당 게시글을 작성한 사용자 정보를 함께 조회
     @Query("select b, u from Team b left join b.tUser u  where b.idx =:idx")
     Object getTeamWithUser(@Param("idx") Long idx);

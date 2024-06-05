@@ -1,6 +1,5 @@
 package com.example.teammate.controller;
 
-import com.example.teammate.entity.Team;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
@@ -61,9 +60,9 @@ public class TeamController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<PageResultDTO<TeamDTO, Team>> list(@ModelAttribute PageRequestDTO requestDTO) {
+    public ResponseEntity<PageResultDTO<TeamDTO, Object[]>> list(@ModelAttribute PageRequestDTO requestDTO) {
         log.info("list request: " + requestDTO);
-        PageResultDTO<TeamDTO, Team> result = teamService.getList(requestDTO);
+        PageResultDTO<TeamDTO, Object[]> result = teamService.getList(requestDTO);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

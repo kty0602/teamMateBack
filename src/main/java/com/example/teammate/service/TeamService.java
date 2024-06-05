@@ -11,7 +11,7 @@ public interface TeamService {
     Long register(TeamDTO dto);
 
     // 목록 처리
-    PageResultDTO<TeamDTO, Team> getList(PageRequestDTO requestDTO);
+    PageResultDTO<TeamDTO, Object[]> getList(PageRequestDTO requestDTO);
 
     // 게시글 1개 조회 처리
     TeamDTO get(Long idx);

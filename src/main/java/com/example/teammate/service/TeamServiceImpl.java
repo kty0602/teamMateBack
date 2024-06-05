@@ -1,12 +1,6 @@
 package com.example.teammate.service;
 
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.JPQLQuery;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -16,7 +10,6 @@ import com.example.teammate.dto.*;
 import com.example.teammate.entity.*;
 import com.example.teammate.repository.*;
 
-import static java.nio.file.attribute.FileTime.from;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +17,6 @@ public class TeamServiceImpl implements TeamService {
 
     private final TeamRepository teamRepository;
     private final TeamReplyRepository teamReplyRepository;
-
     private final UserRepository userRepository;
 
     // 게시글 등록 처리
@@ -92,69 +84,13 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    // 게시글 목록 처리
     @Override
-    public PageResultDTO<TeamDTO, Team> getList(PageRequestDTO requestDTO) {
-        Pageable pageable = requestDTO.getPageable(Sort.by("idx").descending());
-        BooleanBuilder booleanBuilder = getSearch(requestDTO);
-        Page<Team> result = teamRepository.findAll(booleanBuilder, pageable);
+    public PageResultDTO<TeamDTO, Object[]> getList(PageRequestDTO requestDTO) {
+        Function<Object[], TeamDTO> fn = (en -> entityToDTO((Team) en[0], (User) en[1], (Long) en[2]));
+        Page<Object[]> result = teamRepository.getSearch(
+                requestDTO,
+                requestDTO.getPageable(Sort.by("idx").descending()));
 
-        Function<Team, TeamDTO> fn = (team -> {
-            // user와 replyCount를 가져오는 로직을 작성합니다.
-            User user = userRepository.findById(team.getTUser().getIdx()).orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-            Object result2 = teamRepository.getTeamByIdx(team.getIdx());
-            Object[] arr = (Object[])result2;
-
-            // entityToDTO 메소드를 호출합니다.
-            return entityToDTO(team, user, (Long)arr[2]);
-        });
         return new PageResultDTO<>(result, fn);
-    }
-
-    private BooleanBuilder getSearch(PageRequestDTO requestDTO) {
-        BooleanBuilder booleanBuilder = new BooleanBuilder();
-        QTeam team = QTeam.team;
-
-        String[] ktypeArray = requestDTO.getKtypeArray();
-        String search = requestDTO.getSearch();
-
-        BooleanExpression expression1 = team.idx.gt(0L);
-
-        // 글이 삭제된 경우 포함시키지 않음
-        booleanBuilder.and(expression1)
-                .and(team.tdelete.ne(false));
-
-
-        booleanBuilder.and(expression1);
-
-        // 검색 조건이 없는 경우
-        if ((ktypeArray == null || ktypeArray.length == 0) && (search == null || search.trim().length() == 0)) {
-            return booleanBuilder;
-        }
-
-        BooleanBuilder conditionBuilder = new BooleanBuilder();
-        if (search != null) {
-            String[] conditions = search.split(":");
-            String field = conditions[0];
-            String value = conditions[1];
-            switch (field) {
-                case "t":
-                    conditionBuilder.or(team.ttitle.containsIgnoreCase(value));
-                    break;
-            }
-        }
-        if (ktypeArray != null) {
-            for (String k : ktypeArray) {
-                BooleanExpression ktypeMatch = Expressions.stringTemplate(
-                        "FUNCTION('FIND_IN_SET', {0}, {1})", Expressions.constant(k), team.tskill).gt(String.valueOf(0));
-                conditionBuilder.or(ktypeMatch);
-            }
-        }
-
-        // 검색 조건 통합
-        booleanBuilder.and(conditionBuilder);
-
-        return booleanBuilder;
     }
 }
