@@ -37,6 +37,6 @@ public interface BoardRepository extends JpaRepository<Board, Long>, SearchBoard
             "from Board b " +
             "left join b.bUser u " +
             "left outer join Reply r on r.rBoard = b " +
-            "where b.idx = :idx and (r is null or r.rdelete <> false) group by b, u")
+            "where b.idx = :idx and (r is null or r.rdelete = false) group by b, u")
     Object getBoardByBno(@Param("idx") Long idx);
 }

@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 import com.example.teammate.dto.*;
 import com.example.teammate.entity.*;
@@ -31,6 +33,9 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public TeamDTO get(Long idx) {
         Object result = teamRepository.getTeamByIdx(idx);
+        if (result == null) {
+            throw new NoSuchElementException("No team found with idx " + idx);
+        }
         Object[] arr = (Object[])result;
         return entityToDTO((Team)arr[0], (User)arr[1], (Long)arr[2]);
     }

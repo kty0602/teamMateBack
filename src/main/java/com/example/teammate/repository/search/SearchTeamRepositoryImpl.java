@@ -6,9 +6,8 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.core.types.dsl.*;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -36,9 +35,13 @@ public class SearchTeamRepositoryImpl extends QuerydslRepositorySupport implemen
 
         JPQLQuery<Team> jpqlQuery = from(team);
         jpqlQuery.leftJoin(user).on(team.tUser.eq(user));
-        jpqlQuery.leftJoin(teamReply).on(teamReply.trTeam.eq(team));
 
-        JPQLQuery<Tuple> tuple = jpqlQuery.select(team, user, teamReply.count());
+
+        JPQLQuery<Long> subQuery = JPAExpressions.select(teamReply.count())
+                .from(teamReply)
+                .where(teamReply.trTeam.eq(team).and(teamReply.trdelete.ne(false)));
+
+        JPQLQuery<Tuple> tuple = jpqlQuery.select(team, user, subQuery);
 
         String[] ktypeArray = requestDTO.getKtypeArray();
         String search = requestDTO.getSearch();
@@ -50,10 +53,6 @@ public class SearchTeamRepositoryImpl extends QuerydslRepositorySupport implemen
         booleanBuilder.and(expression1)
                 .and(team.tdelete.ne(false));
 
-        // 댓글이 삭제된 경우 포함시키지 않음
-        booleanBuilder.and(
-                teamReply.trdelete.ne(false).or(teamReply.isNull())
-        );
 
         booleanBuilder.and(expression1);
 

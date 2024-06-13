@@ -38,7 +38,7 @@ public interface TeamRepository extends JpaRepository<Team, Long>, SearchTeamRep
             "from Team b " +
             "left join b.tUser u " +
             "left outer join TeamReply r on r.trTeam = b " +
-            "where b.idx = :idx and (r is null or r.trdelete <> false) group by b, u")
+            "where b.idx = :idx and (r is null or r.trdelete = false) group by b, u")
     Object getTeamByIdx(@Param("idx") Long idx);
 
 

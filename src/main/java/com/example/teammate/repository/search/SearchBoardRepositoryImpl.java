@@ -10,6 +10,7 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -63,10 +64,12 @@ public class SearchBoardRepositoryImpl extends QuerydslRepositorySupport impleme
 
         JPQLQuery<Board> jpqlQuery = from(board);
         jpqlQuery.leftJoin(user).on(board.bUser.eq(user));
-        jpqlQuery.leftJoin(reply).on(reply.rBoard.eq(board));
+        // 서브쿼리를 사용하여 삭제되지 않은 댓글 수를 계산
+        JPQLQuery<Long> subQuery = JPAExpressions.select(reply.count())
+                .from(reply)
+                .where(reply.rBoard.eq(board).and(reply.rdelete.ne(false)));
 
-
-        JPQLQuery<Tuple> tuple = jpqlQuery.select(board, user, reply.count());
+        JPQLQuery<Tuple> tuple = jpqlQuery.select(board, user, subQuery);
 
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         BooleanExpression expression = board.idx.gt(0L);
@@ -75,10 +78,6 @@ public class SearchBoardRepositoryImpl extends QuerydslRepositorySupport impleme
         booleanBuilder.and(expression)
                 .and(board.bdelete.ne(false));
 
-        // 댓글이 삭제된 경우 포함시키지 않음
-        booleanBuilder.and(
-                reply.rdelete.ne(false).or(reply.isNull())
-        );
 
         booleanBuilder.and(expression);
 
