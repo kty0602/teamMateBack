@@ -23,6 +23,7 @@ public class TeamReplyController {
     public ResponseEntity<List<TeamReplyDTO>> getListByTeam(@PathVariable("idx") Long idx) {
         log.info("idx: " + idx);
         List<TeamReplyDTO> teamReplyDTOList = teamReplyService.getList(idx);
+        teamReplyDTOList.forEach(teamReplyDTO -> System.out.println(teamReplyDTO));
 
         return new ResponseEntity<>(teamReplyService.getList(idx), HttpStatus.OK);
     }
