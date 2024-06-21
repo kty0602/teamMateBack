@@ -19,6 +19,12 @@ public class PageRequestDTO {
     private String search;
 
 
+    // 직장 검색
+    private String rtype;
+    private String stype;
+    private String ctype;
+
+
     public PageRequestDTO() {
         this.page = 1;
         this.size = 10;
@@ -35,5 +41,4 @@ public class PageRequestDTO {
         }
         return ktype.split(",");
     }
-
 }
