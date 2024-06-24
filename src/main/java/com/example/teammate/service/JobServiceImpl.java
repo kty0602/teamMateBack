@@ -31,21 +31,39 @@ public class JobServiceImpl implements JobService{
         booleanBuilder.and(expression1);
 
         // 검색 조건 타입
-        BooleanBuilder conditionBuilder = new BooleanBuilder();
-        if(rtype != null) {
+        BooleanExpression rtypeExpression = null;
+        if (rtype != null) {
             String[] rtypes = rtype.split(",");
             for (String r : rtypes) {
-                conditionBuilder.and(qJob.place.contains(r.trim()));
-            }
-        }
-        if(stype != null) {
-            String[] stypes = stype.split(",");
-            for(String s : stypes) {
-                conditionBuilder.and(qJob.stack.contains(s.trim()));
+                BooleanExpression rtypeCondition = qJob.place.contains(r.trim());
+                if (rtypeExpression == null) {
+                    rtypeExpression = rtypeCondition;
+                } else {
+                    rtypeExpression = rtypeExpression.or(rtypeCondition);
+                }
             }
         }
 
-        booleanBuilder.and(conditionBuilder);
+        BooleanExpression stypeExpression = null;
+        if (stype != null) {
+            String[] stypes = stype.split(",");
+            for (String s : stypes) {
+                BooleanExpression stypeCondition = qJob.stack.contains(s.trim());
+                if (stypeExpression == null) {
+                    stypeExpression = stypeCondition;
+                } else {
+                    stypeExpression = stypeExpression.or(stypeCondition);
+                }
+            }
+        }
+
+        if (rtypeExpression != null) {
+            booleanBuilder.and(rtypeExpression);
+        }
+        if (stypeExpression != null) {
+            booleanBuilder.and(stypeExpression);
+        }
+
         return booleanBuilder;
     }
 
